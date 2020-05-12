@@ -27,7 +27,6 @@ export const ForgotPasswordText = styled.Text`
 `;
 
 export const CreateAccountButton = styled.TouchableOpacity`
-    position: absolute;
     left: 0;
     bottom: 0;
     right: 0;
