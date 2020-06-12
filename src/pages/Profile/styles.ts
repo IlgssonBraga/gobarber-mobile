@@ -28,3 +28,18 @@ export const UserAvatar = styled.Image`
     border-radius: 85px;
     align-self: center;
 `;
+
+export const ButtonSignOut = styled.TouchableOpacity`
+    width: 100%;
+    height: 60px;
+    background: #c2212e;
+    border-radius: 10px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 15px;
+`;
+export const ButtonSignOutText = styled.Text`
+    font-family: 'RobotoSlab-Medium';
+    color: #f3ede8;
+    font-size: 18px;
+`;

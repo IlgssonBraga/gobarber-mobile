@@ -12,6 +12,7 @@ import Icon from 'react-native-vector-icons/Feather';
 import { Form } from '@unform/mobile';
 import { FormHandles } from '@unform/core';
 import * as Yup from 'yup';
+import ImagePicker from 'react-native-image-picker';
 import { useAuth } from '../../hooks/auth';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
@@ -23,6 +24,8 @@ import {
     UserAvatarButton,
     UserAvatar,
     BackButton,
+    ButtonSignOut,
+    ButtonSignOutText,
 } from './styles';
 
 interface SignUpFormData {
@@ -34,7 +37,7 @@ interface SignUpFormData {
 }
 
 const Profile: React.FC = () => {
-    const { user, updateUser } = useAuth();
+    const { user, updateUser, signout } = useAuth();
     const formRef = useRef<FormHandles>(null);
     const emailInputRef = useRef<TextInput>(null);
     const oldPasswordInputRef = useRef<TextInput>(null);
@@ -104,12 +107,45 @@ const Profile: React.FC = () => {
                 );
             }
         },
-        [navigation],
+        [navigation, updateUser],
     );
 
     const handleGoBack = useCallback(() => {
         navigation.goBack();
     }, [navigation]);
+
+    const handleUpdateAvatar = useCallback(() => {
+        ImagePicker.showImagePicker(
+            {
+                title: 'Selecione um avatar',
+                cancelButtonTitle: 'Cancelar',
+                takePhotoButtonTitle: 'Usar câmera',
+                chooseFromLibraryButtonTitle: 'Escolher da galeria',
+            },
+            async (response) => {
+                if (response.didCancel) {
+                    return;
+                }
+                if (response.error) {
+                    Alert.alert('Erro ao atualizar foto de perfil');
+                    return;
+                }
+
+                const fodata = new FormData();
+                fodata.append('avatar', {
+                    type: 'image/jpeg',
+                    name: `${user.id}.jpg`,
+                    uri: response.uri,
+                });
+                const apiResponse = await api.patch('users/avatar', fodata, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data; charset=utf-8;',
+                    },
+                });
+                updateUser(apiResponse.data);
+            },
+        );
+    }, [updateUser, user.id]);
 
     return (
         <>
@@ -127,7 +163,7 @@ const Profile: React.FC = () => {
                                 color="#999591"
                             />
                         </BackButton>
-                        <UserAvatarButton onPress={() => {}}>
+                        <UserAvatarButton onPress={handleUpdateAvatar}>
                             <UserAvatar source={{ uri: user.avatar_url }} />
                         </UserAvatarButton>
                         <View>
@@ -206,6 +242,10 @@ const Profile: React.FC = () => {
                                 Confirmar mudanças
                             </Button>
                         </Form>
+
+                        <ButtonSignOut onPress={signout}>
+                            <ButtonSignOutText>Logout</ButtonSignOutText>
+                        </ButtonSignOut>
                     </Container>
                 </ScrollView>
             </KeyboardAvoidingView>
